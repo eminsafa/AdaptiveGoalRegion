@@ -1,19 +1,18 @@
+import numpy as np
+
 from adaptive_goal_region.visualization.visualization_interpolation import visualize_grasps
 from adaptive_goal_region.robot_controller import RobotController
 
 robot_controller = RobotController(real_robot=False)
 
-robot_controller.hand_open()
-#
+pose = robot_controller.create_pose(
+    np.array([-0.00694, 0.75659, 1.11397,]),
+    np.array([-2.46658, 0.16737, -0.94575])
+)
+
+robot_controller.create_object(pose)
 robot_controller.go_to_capture_location()
-#
-robot_controller.capture_image_and_save_info()
-
-# # robot_controller.view_image()
+poses = robot_controller.go_to_pose_goal(pose)
 
 
-input(f"{robot_controller.latest_capture_path}\nWaiting for GPD, Press enter when ready!")
 
-poses = robot_controller.convert_grasping_poses()
-
-visualize_grasps(None, poses)

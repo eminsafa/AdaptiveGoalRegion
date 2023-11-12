@@ -30,6 +30,7 @@ from tf import TransformListener
 from tf.transformations import quaternion_from_euler
 from scipy.spatial.transform import Rotation as R
 from adaptive_goal_region.helper import create_new_directory
+from adaptive_goal_region.object_helper import delete_model_from_gazebo, spawn_line_in_gazebo
 import cv2
 
 
@@ -60,7 +61,7 @@ class RobotController:
         self.latest_grasp_result_path = None
         self.graspnet_url = "http://localhost:5000/run?path={path}"
 
-        self.capture_joint_degrees = [1.57, -1.57, 0, -2.13, 0, 1.728, 0.7854]
+        self.capture_joint_degrees = [1.57, -1.57, 0, -1.57, 0, 0.98, 0.7854]
         self.neutral_joint_values = [0.0, 0.4, 0.0, -1.78, 0.0, 2.24, 0.77]
         self.up_joints = [0.0, 0.0, 0.0, -1.78, 0.0, 2.24, 0.77]
         self.relase_joint_values = [1.39, 0.4, 0.0, -1.78, 0.0, 2.24, 0.77]
@@ -94,10 +95,21 @@ class RobotController:
         pose.position.y = float(position[1])
         pose.position.z = float(position[2])
         if orientation is not None:
-            pose.orientation.x = orientation[0]
-            pose.orientation.y = orientation[1]
-            pose.orientation.z = orientation[2]
-            pose.orientation.w = orientation[3]
+            if orientation.size == 4:
+                pose.orientation.x = orientation[0]
+                pose.orientation.y = orientation[1]
+                pose.orientation.z = orientation[2]
+                pose.orientation.w = orientation[3]
+            elif orientation.size == 3:
+                quaternion = quaternion_from_euler(
+                    np.double(orientation[0]),
+                    np.double(orientation[1]),
+                    np.double(orientation[2]),
+                )
+                pose.orientation.x = quaternion[0]
+                pose.orientation.y = quaternion[1]
+                pose.orientation.z = quaternion[2]
+                pose.orientation.w = quaternion[3]
         return pose
 
     def create_random_pose(self) -> Pose:
@@ -304,7 +316,7 @@ class RobotController:
         with np.load("storage/grasping_poses/data.npz", allow_pickle=True) as data:
             data = dict(data)
         poses = []
-        time.sleep(4)
+        time.sleep(10)
         for i in data["pred_grasps_cam"].item()[-1]:
             raw_pose = self.matrix_to_pose_quaternion(i)
             ps = self.transform_camera_to_world(raw_pose)
@@ -359,3 +371,8 @@ class RobotController:
         p.pose.position.y = 0.0
         p.pose.position.z = -0.01
         self.scene.add_box("table", p, (2.0, 2.0, 0.1))
+
+    def create_object(self, pose: Pose):
+        delete_model_from_gazebo("line")
+        time.sleep(1)
+        spawn_line_in_gazebo("line", pose, 0.05, 0.005)

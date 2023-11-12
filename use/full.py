@@ -9,6 +9,8 @@ robot_controller.go_to_capture_location()
 #
 robot_controller.capture_image_and_save_info()
 
+# # robot_controller.view_image()
+
 
 input(f"{robot_controller.latest_capture_path}\nWaiting for GPD, Press enter when ready!")
 
