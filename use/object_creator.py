@@ -12,7 +12,7 @@ pose = robot_controller.create_pose(
 
 robot_controller.create_object(pose)
 robot_controller.go_to_capture_location()
-poses = robot_controller.go_to_pose_goal(pose)
+# poses = robot_controller.go_to_pose_goal(pose)
 
 
 

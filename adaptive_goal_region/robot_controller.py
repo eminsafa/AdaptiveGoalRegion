@@ -36,11 +36,11 @@ import cv2
 
 class RobotController:
 
-    def __init__(self, real_robot: bool = False):
+    def __init__(self, real_robot: bool = False, group_id: str = "arm"):
         self.real_robot = real_robot
         self.robot_name = "fr3" if real_robot else "panda"
         rospy.init_node("panda_controller", anonymous=True)
-        self.move_group = moveit_commander.MoveGroupCommander(self.robot_name + "_manipulator")
+        self.move_group = moveit_commander.MoveGroupCommander(self.robot_name + '_' + group_id)
         self.hand_group = moveit_commander.MoveGroupCommander(self.robot_name + "_hand")
         self.robot = moveit_commander.RobotCommander()
         self.scene = moveit_commander.PlanningSceneInterface()
@@ -289,18 +289,34 @@ class RobotController:
     # FRAME TRANSFORMATION
 
     def transform_camera_to_world(self, cv_pose: Union[np.ndarray, list]) -> PoseStamped:
+        pose = self.frame_transformation(cv_pose, "camera_depth_optical_frame", "world")
+        print(pose.pose.position.z)
+        if pose.pose.position.z < 0.8:
+            time.sleep(1)
+            print("Transformation Recalled!")
+            return self.transform_camera_to_world(cv_pose)
+        return pose
+
+    def frame_transformation(self, pose_array: np.ndarray, frame_from: str, frame_to: str) -> PoseStamped:
         base_pose = PoseStamped()
-        quaternion = quaternion_from_euler(np.double(cv_pose[3]), np.double(cv_pose[4]), np.double(cv_pose[5]))
-        base_pose.pose.position.x = cv_pose[0]
-        base_pose.pose.position.y = cv_pose[1]
-        base_pose.pose.position.z = cv_pose[2]
+        if pose_array.size == 6:
+            quaternion = quaternion_from_euler(
+                np.double(pose_array[3]),
+                np.double(pose_array[4]),
+                np.double(pose_array[5]),
+            )
+        else:
+            quaternion = pose_array[3:]
+        base_pose.pose.position.x = pose_array[0]
+        base_pose.pose.position.y = pose_array[1]
+        base_pose.pose.position.z = pose_array[2]
         base_pose.pose.orientation.x = quaternion[0]
         base_pose.pose.orientation.y = quaternion[1]
         base_pose.pose.orientation.z = quaternion[2]
         base_pose.pose.orientation.w = quaternion[3]
-        base_pose.header.frame_id = "camera_depth_optical_frame"
+        base_pose.header.frame_id = frame_from
 
-        result = self.tf_listener.transformPose("world", base_pose)
+        result = self.tf_listener.transformPose(frame_to, base_pose)
         return result
 
     @staticmethod
@@ -311,6 +327,27 @@ class RobotController:
         pose_quaternion = np.concatenate((position, quaternion))
 
         return pose_quaternion
+
+    def link_transformation(self, pose_linkA, relative_position, relative_orientation):
+        position_linkA, orientation_linkA = pose_linkA
+
+        # Convert to numpy arrays
+        position_linkA = np.array(position_linkA)
+        orientation_linkA = R.from_quat(orientation_linkA)
+
+        # Convert relative position and orientation to numpy arrays
+        relative_position = np.array(relative_position)
+        relative_orientation = R.from_quat(relative_orientation)
+
+        # Calculate the inverse transformation of linkB's pose
+        inv_relative_position = -relative_orientation.apply(relative_position)
+        inv_relative_orientation = relative_orientation.inv()
+
+        # Apply the transformation
+        transformed_position = inv_relative_orientation.apply(position_linkA - relative_position)
+        transformed_orientation = (inv_relative_orientation * orientation_linkA).as_quat()
+
+        return transformed_position, transformed_orientation
 
     def convert_grasping_poses(self) -> np.ndarray:
         with np.load("storage/grasping_poses/data.npz", allow_pickle=True) as data:
@@ -375,4 +412,7 @@ class RobotController:
     def create_object(self, pose: Pose):
         delete_model_from_gazebo("line")
         time.sleep(1)
-        spawn_line_in_gazebo("line", pose, 0.05, 0.005)
+        spawn_line_in_gazebo("line", pose, 0.50, 0.005)
+
+
+
