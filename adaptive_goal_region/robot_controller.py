@@ -27,7 +27,7 @@ from sensor_msgs.msg import (
     Image,
 )
 from tf import TransformListener
-from tf.transformations import quaternion_from_euler
+from tf.transformations import quaternion_from_euler, euler_from_quaternion
 from scipy.spatial.transform import Rotation as R
 from adaptive_goal_region.helper import create_new_directory
 from adaptive_goal_region.object_helper import delete_model_from_gazebo, spawn_line_in_gazebo
@@ -125,10 +125,35 @@ class RobotController:
             position.z,
         ]).astype(np.float32)
 
-    def rotate_quaternion(self, quaternions: np.ndarray, axis: str = 'z', degrees: float = 90.0) -> np.ndarray:
+    def rotate_quaternion(self, quaternions: np.ndarray, axis: str = 'z', degrees: float = -90.0) -> np.ndarray:
         original_rotation = R.from_quat(quaternions)
         original_rotation = R.from_euler(axis, degrees, degrees=True) * original_rotation
         return original_rotation.as_quat()
+
+    def rotate_all_poses(self, pose_array: np.ndarray) -> np.ndarray:
+        new_poses = []
+        for pose in pose_array:
+            pos1 = pose[:3]
+            ori1_euler = pose[3:6]
+            ori1_qua = quaternion_from_euler(
+                np.double(ori1_euler[0]),
+                np.double(ori1_euler[1]),
+                np.double(ori1_euler[2]),
+            )
+            ori1_new = self.rotate_quaternion(ori1_qua, 'z', -45)
+            ori1_new = euler_from_quaternion(ori1_new)
+            pos2 = pose[6:9]
+            ori2_euler = pose[9:]
+            ori2_qua = quaternion_from_euler(
+                np.double(ori2_euler[0]),
+                np.double(ori2_euler[1]),
+                np.double(ori2_euler[2]),
+            )
+            ori2_new = self.rotate_quaternion(ori2_qua, 'z', -45)
+            ori2_new = euler_from_quaternion(ori2_new)
+            new_poses.append(np.concatenate([pos1, ori1_new, pos2, ori2_new]))
+        return np.array(new_poses)
+
 
     # PLANNING OPERATIONS
 
@@ -295,11 +320,11 @@ class RobotController:
 
     def transform_camera_to_world(self, cv_pose: Union[np.ndarray, list]) -> PoseStamped:
         pose = self.frame_transformation(cv_pose, "camera_depth_optical_frame", "world")
-        print(pose.pose.position.z)
-        if pose.pose.position.z < 0.8:
+        if pose.pose.position.z < 0.5:
             time.sleep(1)
-            print("Transformation Recalled!")
-            return self.transform_camera_to_world(cv_pose)
+            print(f"Transformation Recalled for {cv_pose[:3]}")
+            # return self.transform_camera_to_world(cv_pose)
+            return self.frame_transformation(cv_pose, "camera_depth_optical_frame", "world")
         return pose
 
     def frame_transformation(self, pose_array: np.ndarray, frame_from: str, frame_to: str) -> PoseStamped:
