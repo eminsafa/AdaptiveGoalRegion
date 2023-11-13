@@ -13,7 +13,7 @@ def transform_position_with_orientation(original_orientation, orientation_quater
     return converted_rot.as_quat()
 
 
-file_path = "/home/juanhernandezvega/dev/AdaptiveGoalRegion/storage/spline_finals/agr_output.txt"
+file_path = "storage/spline_finals/agr_output.txt"
 file = open(file_path, "r+")
 poses = []
 for line in file.read().split("\n"):
