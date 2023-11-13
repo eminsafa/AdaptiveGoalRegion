@@ -3,7 +3,7 @@ from typing import Tuple
 
 import numpy as np
 
-from adaptive_goal_region.visualization.agr_helper import (
+from adaptive_goal_region.src.agr_helper import (
     n_closest_points_indices,
     quaternion_angular_distance
 )

@@ -1,6 +1,5 @@
 import numpy as np
 
-from adaptive_goal_region.visualization.visualization_interpolation import visualize_grasps
 from adaptive_goal_region.robot_controller import RobotController
 
 robot_controller = RobotController(real_robot=False)
@@ -11,8 +10,5 @@ pose = robot_controller.create_pose(
 )
 
 robot_controller.create_object(pose)
+
 robot_controller.go_to_capture_location()
-# poses = robot_controller.go_to_pose_goal(pose)
-
-
-

@@ -8,7 +8,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
 
-from adaptive_goal_region.visualization.agr_helper import max_distance_in_positions
+from adaptive_goal_region.src.agr_helper import max_distance_in_positions
 # mpl.use('macosx')
 
 

@@ -3,6 +3,6 @@ from adaptive_goal_region.robot_controller import RobotController
 
 robot_controller = RobotController(real_robot=False)
 
-poses = robot_controller.convert_grasping_poses()
+poses = robot_controller.transform_grasping_poses()
 
 visualize_grasps(None, poses)

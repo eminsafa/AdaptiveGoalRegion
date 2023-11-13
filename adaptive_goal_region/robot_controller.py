@@ -125,6 +125,11 @@ class RobotController:
             position.z,
         ]).astype(np.float32)
 
+    def rotate_quaternion(self, quaternions: np.ndarray, axis: str = 'z', degrees: float = 90.0) -> np.ndarray:
+        original_rotation = R.from_quat(quaternions)
+        original_rotation = R.from_euler(axis, degrees, degrees=True) * original_rotation
+        return original_rotation.as_quat()
+
     # PLANNING OPERATIONS
 
     def get_pose_goal_plan_with_duration(self, pose: Pose, planner: str) -> Tuple[Tuple, int]:
@@ -328,28 +333,7 @@ class RobotController:
 
         return pose_quaternion
 
-    def link_transformation(self, pose_linkA, relative_position, relative_orientation):
-        position_linkA, orientation_linkA = pose_linkA
-
-        # Convert to numpy arrays
-        position_linkA = np.array(position_linkA)
-        orientation_linkA = R.from_quat(orientation_linkA)
-
-        # Convert relative position and orientation to numpy arrays
-        relative_position = np.array(relative_position)
-        relative_orientation = R.from_quat(relative_orientation)
-
-        # Calculate the inverse transformation of linkB's pose
-        inv_relative_position = -relative_orientation.apply(relative_position)
-        inv_relative_orientation = relative_orientation.inv()
-
-        # Apply the transformation
-        transformed_position = inv_relative_orientation.apply(position_linkA - relative_position)
-        transformed_orientation = (inv_relative_orientation * orientation_linkA).as_quat()
-
-        return transformed_position, transformed_orientation
-
-    def convert_grasping_poses(self) -> np.ndarray:
+    def transform_grasping_poses(self) -> np.ndarray:
         with np.load("storage/grasping_poses/data.npz", allow_pickle=True) as data:
             data = dict(data)
         poses = []

@@ -3,19 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from adaptive_goal_region.visualization import mesh_utils
-
-from adaptive_goal_region.visualization.agr_clustering import (
-    grasping_poses_to_position_and_orientation,
-    cluster_by_position,
-    generate_indices_array,
-)
-from adaptive_goal_region.visualization.agr_spline import generate_intermediate_poses
-from adaptive_goal_region.visualization.agr_interpolation import generate_interpolation_edges
-from adaptive_goal_region.visualization.agr_helper import (
+from adaptive_goal_region.src.agr_spline import generate_intermediate_poses
+from adaptive_goal_region.src.agr_helper import (
     COLORS,
-    closest_position_index,
-    save_interpolation_data,
-    quaternions_to_euler,
+    save_agr_data,
 )
 
 
@@ -105,35 +96,15 @@ def show_image(rgb, segmap):
 
 
 def visualize_grasps(
-    full_pc,
-    pred_grasps_cam,
-    scores=None,
+    adaptive_goal_region_data,
+    grasping_poses=None,
     plot_opencv_cam=False,
-    pc_colors=None,
-    gripper_openings=None,
-    gripper_width=0.08,
-    draw=False,
 ):
-    """Visualizes colored point cloud and predicted grasps. If given, colors grasps by segmap regions.
-    Thick grasp is most confident per segment. For scene point cloud predictions, colors grasps according to confidence.
-
-    Arguments:
-        full_pc {np.ndarray} -- Nx3 point cloud of the scene
-        pred_grasps_cam {dict[int:np.ndarray]} -- Predicted 4x4 grasp trafos per segment or for whole point cloud
-        scores {dict[int:np.ndarray]} -- Confidence scores for grasps
-
-    Keyword Arguments:
-        plot_opencv_cam {bool} -- plot camera coordinate frame (default: {False})
-        pc_colors {np.ndarray} -- Nx3 point cloud colors (default: {None})
-        gripper_openings {dict[int:np.ndarray]} -- Predicted grasp widths (default: {None})
-        gripper_width {float} -- If gripper_openings is None, plot grasp widths (default: {0.008})
-    """
-
     print("Visualizing process started. It takes time.")
 
-    if draw:
-        fig = mlab.figure("Predicted Grasping Poses")
-        mlab.view(azimuth=180, elevation=180, distance=0.2)
+    fig = mlab.figure("Predicted Grasping Poses")
+    mlab.view(azimuth=180, elevation=180, distance=0.2)
+    gripper_openings_k = np.ones(1) * 0.08  # constant
     # draw_pc_with_colors(full_pc, pc_colors)
 
     if plot_opencv_cam:
@@ -142,82 +113,39 @@ def visualize_grasps(
             np.eye(3, 3),
         )
 
-    #
-    # Adaptive Goal Region
-    #
+    for i, cluster in enumerate(adaptive_goal_region_data):
 
-    positions, orientations, matrices = grasping_poses_to_position_and_orientation(pred_grasps_cam)
-
-    # Cluster by Position
-    labels = cluster_by_position(positions)
-    n_clusters = len(set(labels))
-    print(f"Estimated number of clusters: {n_clusters}")
-
-    # Cluster by Orientation and Generate Unique Labels
-    indices, global_labels = generate_indices_array(labels, n_clusters, positions, orientations)
-
-    # Draw Spline
-    adaptive_goal_region_data = []
-    gripper_openings_k = np.ones(1) * gripper_width  # constant
-    for parent_cluster in global_labels:
-        for sub_cluster in global_labels[parent_cluster]:
-            label = global_labels[parent_cluster][sub_cluster]
-            sub_cluster_positions = np.array([
-                positions[matrices_index]
-                for matrices_index, global_label in indices
-                if global_label == label
-            ])
-            if np.any(sub_cluster_positions):
-                line_start, line_end = generate_interpolation_edges(sub_cluster_positions)
-                ind_start = closest_position_index(positions, line_start)
-                ind_end = closest_position_index(positions, line_end)
-
-                line_start_pos = positions[ind_start]
-                line_start_ori = orientations[ind_start]
-                line_end_pos = positions[ind_end]
-                line_end_ori = orientations[ind_end]
-
-                adaptive_goal_region_data.append(
-                    np.concatenate([
-                        line_start_pos,
-                        quaternions_to_euler(line_start_ori),
-                        line_end_pos,
-                        quaternions_to_euler(line_end_ori),
-                    ])
-                )
-                if draw:
-                    interpolated = generate_intermediate_poses(
-                        line_start_pos,
-                        line_start_ori,
-                        line_end_pos,
-                        line_end_ori,
-                        50,
-                    )
-                    for interpolated_matrix in interpolated:
-                        draw_grasps(
-                            [interpolated_matrix],
-                            np.eye(4),
-                            color=COLORS[label],
-                            gripper_openings=gripper_openings_k,
-                        )
-
-    # Draw Raw Grasping Poses (Default: False)
-    scatter = False
-    if scatter:
-        for global_index, color_index in indices:
-            if color_index is None:
-                continue
-            color = COLORS[color_index]
+        interpolated = generate_intermediate_poses(
+            cluster[:3],
+            cluster[3:6],
+            cluster[6:9],
+            cluster[9:],
+            50,
+        )
+        for interpolated_matrix in interpolated:
             draw_grasps(
-                [matrices[global_index]],
+                [interpolated_matrix],
                 np.eye(4),
-                color=color,
+                color=COLORS[i],
                 gripper_openings=gripper_openings_k,
             )
 
-    save_interpolation_data(adaptive_goal_region_data)
-    if draw:
-        mlab.show()
+    # Draw Raw Grasping Poses (Default: False)
+    if grasping_poses is not None:
+        pass
+        # for global_index, color_index in indices:
+        #     if color_index is None:
+        #         continue
+        #     color = COLORS[color_index]
+        #     draw_grasps(
+        #         [matrices[global_index]],
+        #         np.eye(4),
+        #         color=color,
+        #         gripper_openings=gripper_openings_k,
+        #     )
+
+    save_agr_data(adaptive_goal_region_data)
+    mlab.show()
 
 
 def draw_pc_with_colors(

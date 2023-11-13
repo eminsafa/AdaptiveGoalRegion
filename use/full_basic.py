@@ -1,3 +1,4 @@
+
 import time
 
 from adaptive_goal_region.robot_controller import RobotController
@@ -15,6 +16,6 @@ robot_controller.capture_image_and_save_info()
 
 input(f"{robot_controller.latest_capture_path}\nWaiting for GPD, Press enter when ready!")
 
-poses = robot_controller.convert_grasping_poses()
+poses = robot_controller.transform_grasping_poses()
 
 visualize_grasps(None, poses)

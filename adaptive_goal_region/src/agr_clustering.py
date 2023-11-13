@@ -1,13 +1,9 @@
-import math
 import numpy as np
 from typing import Tuple, Dict
 
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import DBSCAN
-from adaptive_goal_region.visualization.agr_helper import (
-    quaternion_angular_distance,
-    euler_to_quaternion
-)
+from adaptive_goal_region.src.agr_helper import quaternion_angular_distance
 
 
 def cluster_by_position(positions: np.ndarray) -> np.ndarray:
@@ -32,7 +28,7 @@ def cluster_by_orientation(orientations: np.ndarray, global_indices: np.ndarray,
     return cluster_indices
 
 
-def grasping_poses_to_position_and_orientation(pred_grasps_cam: Dict) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def grasping_poses_to_position_and_orientation(pred_grasps_cam: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     positions = []
     orientations = []
     matrices = []
