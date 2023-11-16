@@ -6,7 +6,7 @@ from typing import (
     List,
     Optional,
     Tuple,
-    Union,
+    Union, Dict,
 )
 
 import moveit_commander
@@ -319,16 +319,12 @@ class RobotController:
     # FRAME TRANSFORMATION
 
     def transform_camera_to_world(self, cv_pose: Union[np.ndarray, list]) -> PoseStamped:
-        pose = self.frame_transformation(cv_pose, "camera_depth_optical_frame", "world")
-        if pose.pose.position.z < 0.5:
-            time.sleep(1)
-            print(f"Transformation Recalled for {cv_pose[:3]}")
-            # return self.transform_camera_to_world(cv_pose)
-            return self.frame_transformation(cv_pose, "camera_depth_optical_frame", "world")
-        return pose
+        return self.frame_transformation(cv_pose, "camera_depth_optical_frame", "world")
 
-    def frame_transformation(self, pose_array: np.ndarray, frame_from: str, frame_to: str) -> PoseStamped:
+    def frame_transformation(self, pose_array: np.ndarray, frame_from: str, frame_to: str) -> Optional[PoseStamped]:
         base_pose = PoseStamped()
+        base_pose.header.frame_id = frame_from
+        base_pose.header.stamp = rospy.Time.now()
         if pose_array.size == 6:
             quaternion = quaternion_from_euler(
                 np.double(pose_array[3]),
@@ -344,10 +340,9 @@ class RobotController:
         base_pose.pose.orientation.y = quaternion[1]
         base_pose.pose.orientation.z = quaternion[2]
         base_pose.pose.orientation.w = quaternion[3]
-        base_pose.header.frame_id = frame_from
-
-        result = self.tf_listener.transformPose(frame_to, base_pose)
-        return result
+        if self.tf_listener.canTransform(frame_to, frame_from, rospy.Time(0)):
+            return self.tf_listener.transformPose(frame_to, base_pose)
+        return None
 
     @staticmethod
     def matrix_to_pose_quaternion(matrix):
@@ -355,17 +350,20 @@ class RobotController:
         rotation_matrix = matrix[:3, :3]
         quaternion = R.from_matrix(rotation_matrix).as_quat()
         pose_quaternion = np.concatenate((position, quaternion))
-
         return pose_quaternion
 
-    def transform_grasping_poses(self) -> np.ndarray:
-        with np.load("storage/grasping_poses/data.npz", allow_pickle=True) as data:
-            data = dict(data)
-        poses = []
-        time.sleep(10)
-        for i in data["pred_grasps_cam"].item()[-1]:
-            raw_pose = self.matrix_to_pose_quaternion(i)
-            ps = self.transform_camera_to_world(raw_pose)
+    def convert_matrices_to_array(self, data: Dict) -> np.ndarray:
+        return np.array(
+            [
+                self.matrix_to_pose_quaternion(matrix)
+                for matrix in data["pred_grasps_cam"].item()[-1]
+            ]
+        )
+
+    def array_frame_transformation(self, poses: np.ndarray) -> np.ndarray:
+        result = []
+        for pose in poses:
+            ps = self.transform_camera_to_world(pose)
             pose = np.array([
                 ps.pose.position.x,
                 ps.pose.position.y,
@@ -375,9 +373,8 @@ class RobotController:
                 ps.pose.orientation.z,
                 ps.pose.orientation.w,
             ])
-            poses.append(pose)
-        return np.array(poses)
-
+            result.append(pose)
+        return result
 
     # OBJECT CONTROLLER
 
@@ -423,5 +420,11 @@ class RobotController:
         time.sleep(1)
         spawn_line_in_gazebo("line", pose, 0.50, 0.005)
 
+    # HELPERS
 
+    def read_grasping_poses_file(self) -> Dict:
+        with np.load("storage/grasping_poses/data.npz", allow_pickle=True) as data:
+            return dict(data)
 
+    def test(self):
+        pass

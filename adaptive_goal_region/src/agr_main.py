@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from adaptive_goal_region.src.agr_clustering import (
@@ -8,17 +10,14 @@ from adaptive_goal_region.src.agr_clustering import (
 from adaptive_goal_region.src.agr_helper import (
     closest_position_index,
     quaternions_to_euler,
+    rotate_orientation,
 )
 from adaptive_goal_region.src.agr_interpolation import generate_interpolation_edges
 
 
-def agr(pred_grasps_cam: np.ndarray) -> np.ndarray:
+def agr(poses: np.ndarray, rotate: Optional[bool] = True, return_euler: Optional[bool] = True) -> np.ndarray:
 
-    #
-    # Adaptive Goal Region
-    #
-
-    positions, orientations, matrices = grasping_poses_to_position_and_orientation(pred_grasps_cam)
+    positions, orientations, _ = grasping_poses_to_position_and_orientation(poses)
 
     # Cluster by Position
     labels = cluster_by_position(positions)
@@ -48,29 +47,21 @@ def agr(pred_grasps_cam: np.ndarray) -> np.ndarray:
                 line_end_pos = positions[ind_end]
                 line_end_ori = orientations[ind_end]
 
+                if rotate:
+                    line_start_ori = rotate_orientation(line_end_ori)
+                    line_end_ori = rotate_orientation(line_end_ori)
+
+                if return_euler:
+                    line_start_ori = quaternions_to_euler(line_start_ori)
+                    line_end_ori = quaternions_to_euler(line_end_ori)
+
                 adaptive_goal_region_data.append(
                     np.concatenate([
                         line_start_pos,
-                        quaternions_to_euler(line_start_ori),
+                        line_start_ori,
                         line_end_pos,
-                        quaternions_to_euler(line_end_ori),
+                        line_end_ori,
                     ])
                 )
 
-                #
-                # if draw:
-                #     interpolated = generate_intermediate_poses(
-                #         line_start_pos,
-                #         line_start_ori,
-                #         line_end_pos,
-                #         line_end_ori,
-                #         50,
-                #     )
-                #     for interpolated_matrix in interpolated:
-                #         draw_grasps(
-                #             [interpolated_matrix],
-                #             np.eye(4),
-                #             color=COLORS[label],
-                #             gripper_openings=gripper_openings_k,
-                #         )
     return np.array(adaptive_goal_region_data)

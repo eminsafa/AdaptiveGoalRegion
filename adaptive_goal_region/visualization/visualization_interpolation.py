@@ -6,7 +6,7 @@ from adaptive_goal_region.visualization import mesh_utils
 from adaptive_goal_region.src.agr_spline import generate_intermediate_poses
 from adaptive_goal_region.src.agr_helper import (
     COLORS,
-    save_agr_data,
+    save_agr_data_as_txt,
 )
 
 
@@ -144,7 +144,7 @@ def visualize_grasps(
         #         gripper_openings=gripper_openings_k,
         #     )
 
-    save_agr_data(adaptive_goal_region_data)
+    save_agr_data_as_txt(adaptive_goal_region_data)
     mlab.show()
 
 
