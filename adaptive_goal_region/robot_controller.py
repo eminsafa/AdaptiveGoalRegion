@@ -26,8 +26,14 @@ from sensor_msgs.msg import (
     CameraInfo,
     Image,
 )
-from tf import TransformListener
-from tf.transformations import quaternion_from_euler, euler_from_quaternion
+from tf2_ros import TransformListener, Buffer
+import tf2_geometry_msgs
+from tf.transformations import (
+    quaternion_from_euler,
+    euler_from_quaternion,
+    quaternion_about_axis,
+    quaternion_multiply,
+)
 from scipy.spatial.transform import Rotation as R
 from adaptive_goal_region.helper import create_new_directory
 from adaptive_goal_region.object_helper import delete_model_from_gazebo, spawn_line_in_gazebo
@@ -44,7 +50,8 @@ class RobotController:
         self.hand_group = moveit_commander.MoveGroupCommander(self.robot_name + "_hand")
         self.robot = moveit_commander.RobotCommander()
         self.scene = moveit_commander.PlanningSceneInterface()
-        self.tf_listener = TransformListener()
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer)
         self.cv_bridge = CvBridge()
 
         current_directory = os.path.dirname(__file__)
@@ -153,7 +160,6 @@ class RobotController:
             ori2_new = euler_from_quaternion(ori2_new)
             new_poses.append(np.concatenate([pos1, ori1_new, pos2, ori2_new]))
         return np.array(new_poses)
-
 
     # PLANNING OPERATIONS
 
@@ -340,9 +346,11 @@ class RobotController:
         base_pose.pose.orientation.y = quaternion[1]
         base_pose.pose.orientation.z = quaternion[2]
         base_pose.pose.orientation.w = quaternion[3]
-        if self.tf_listener.canTransform(frame_to, frame_from, rospy.Time(0)):
-            return self.tf_listener.transformPose(frame_to, base_pose)
-        return None
+        try:
+            transform = self.tf_buffer.lookup_transform(frame_to, base_pose.header.frame_id, rospy.Time(0), rospy.Duration(1.0))
+            return tf2_geometry_msgs.do_transform_pose(base_pose, transform)
+        except Exception as e:
+            print(f"Frame Transformation Exception: {e}")
 
     @staticmethod
     def matrix_to_pose_quaternion(matrix):
@@ -352,11 +360,15 @@ class RobotController:
         pose_quaternion = np.concatenate((position, quaternion))
         return pose_quaternion
 
-    def convert_matrices_to_array(self, data: Dict) -> np.ndarray:
+    def convert_matrices_to_array(self, data: Dict, sort: Optional[bool] = False) -> np.ndarray:
+        matrices = data["pred_grasps_cam"].item()[-1]
+        if sort:
+            paired = sorted(zip(data["scores"].item()[-1], matrices), key=lambda x: x[0])
+            matrices = [pose for score, pose in paired]
         return np.array(
             [
                 self.matrix_to_pose_quaternion(matrix)
-                for matrix in data["pred_grasps_cam"].item()[-1]
+                for matrix in matrices
             ]
         )
 
@@ -375,6 +387,19 @@ class RobotController:
             ])
             result.append(pose)
         return result
+
+    def array_rotation(self, poses: np.ndarray, angle_degrees) -> np.ndarray:
+        results = []
+        for pose in poses:
+            angle_radians = np.pi / 2  # 90 degrees in radians
+            rotation_quaternion = quaternion_about_axis(angle_radians, (0, 0, 1))
+
+            # Multiply original quaternion by the rotation quaternion
+            rotated_quaternion = quaternion_multiply(pose[3:], rotation_quaternion)
+
+            results.append(np.concatenate([pose[:3], rotated_quaternion]))
+        return np.array(results)
+
 
     # OBJECT CONTROLLER
 

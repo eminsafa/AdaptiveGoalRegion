@@ -68,10 +68,8 @@ def generate_intermediate_poses(positions1: np.ndarray, q1: np.ndarray, position
     t_values = np.linspace(0, 1, n + 2)[1:-1]
     new_poses = []
     for t in t_values:
-        quaternions1 = euler_to_quaternion(q1[0], q1[1], q1[2])
-        quaternions2 = euler_to_quaternion(q2[0], q2[1], q2[2])
         new_position = lerp(positions1, positions2, t)
-        new_orientation = slerp(quaternions1, quaternions2, t)
+        new_orientation = slerp(q1, q2, t)
         new_poses.append(
             generate_matrix(new_position, new_orientation)
         )

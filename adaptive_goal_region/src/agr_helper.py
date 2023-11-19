@@ -1,3 +1,4 @@
+import csv
 import heapq
 import math
 from typing import Tuple, Optional
@@ -101,16 +102,21 @@ def n_closest_points_indices(points, target_point, n=3):
     return [index for (_, index) in closest_indices]
 
 
-def save_agr_data_as_txt(adaptive_goal_region_data: np.ndarray, path: Optional[str] = None) -> None:
+def save_agr_data_as_txt(data: np.ndarray, path: Optional[str] = None, unique: Optional[bool] = False) -> None:
     path = path if path is not None else "storage/spline_finals/agr_output.txt"
+    temp = set()
     with open(path, "w") as file:
-        for goal_region in adaptive_goal_region_data:
+        for pose in data:
+            if unique and str(pose) in temp:
+                continue
+            elif unique:
+                temp.add(str(pose))
             text = ""
-            for i in goal_region:
+            for i in pose:
                 text += "{:.5f} ".format(i)
             file.write(text + "\n")
 
-def save_agr_data_as_txt(adaptive_goal_region_data: np.ndarray) -> None:
+def save_agr_data_as_csv(adaptive_goal_region_data: np.ndarray) -> None:
     score = 0.0
     contact_point = np.zeros(3).flatten()
     flattened_data = []
@@ -125,7 +131,7 @@ def save_agr_data_as_txt(adaptive_goal_region_data: np.ndarray) -> None:
         writer.writerows(flattened_data)
 
 
-def rotate_orientation(orientation: np.ndarray, angle_degrees: int = -45) -> np.ndarray:
+def rotate_orientation(orientation: np.ndarray, angle_degrees: int = 90) -> np.ndarray:
     angle_radians = np.pi * (angle_degrees / 180.0)
     rotation = Rotation.from_euler('z', angle_radians)
     original_orientation = Rotation.from_quat(orientation)

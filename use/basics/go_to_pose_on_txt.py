@@ -6,13 +6,6 @@ from adaptive_goal_region.robot_controller import RobotController
 from tf.transformations import quaternion_from_euler
 
 
-def transform_position_with_orientation(original_orientation, orientation_quaternion):
-    original_rot = R.from_quat(original_orientation)
-    relative_rot = R.from_quat(relative_orientation)
-    converted_rot = relative_rot * original_rot
-    return converted_rot.as_quat()
-
-
 file_path = "storage/spline_finals/agr_output.txt"
 file = open(file_path, "r+")
 poses = []
@@ -26,14 +19,14 @@ for line in file.read().split("\n"):
     poses.append(np.array(pose[:6]))
     poses.append(np.array(pose[6:]))
 
-relative_orientation = (0, 0, -0.38268, 0.92388)
-
 robot_controller = RobotController(real_robot=False, group_id="manipulator")
 
+i = 0
 for pose in poses:
-    orientation = quaternion_from_euler(np.double(pose[3]), np.double(pose[4]), np.double(pose[5]),)
-    new_ori = transform_position_with_orientation(orientation, relative_orientation)
-    pose = robot_controller.create_pose(pose[:3], new_ori)
+    pose = robot_controller.create_pose(pose[:3], pose[3:])
     robot_controller.go_to_pose_goal(pose)
     time.sleep(1)
+    i += 1
+    if i > 3:
+        break
 

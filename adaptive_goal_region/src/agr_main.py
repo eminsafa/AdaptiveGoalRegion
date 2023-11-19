@@ -48,7 +48,7 @@ def agr(poses: np.ndarray, rotate: Optional[bool] = True, return_euler: Optional
                 line_end_ori = orientations[ind_end]
 
                 if rotate:
-                    line_start_ori = rotate_orientation(line_end_ori)
+                    line_start_ori = rotate_orientation(line_start_ori)
                     line_end_ori = rotate_orientation(line_end_ori)
 
                 if return_euler:

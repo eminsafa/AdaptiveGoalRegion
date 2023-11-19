@@ -4,10 +4,8 @@ import numpy as np
 
 from adaptive_goal_region.visualization import mesh_utils
 from adaptive_goal_region.src.agr_spline import generate_intermediate_poses
-from adaptive_goal_region.src.agr_helper import (
-    COLORS,
-    save_agr_data_as_txt,
-)
+from adaptive_goal_region.src.agr_helper import COLORS
+from adaptive_goal_region.visualization.point_clouds import get_pc_data
 
 
 def plot_mesh(mesh, cam_trafo=np.eye(4), mesh_pose=np.eye(4)):
@@ -95,17 +93,14 @@ def show_image(rgb, segmap):
     plt.pause(0.001)
 
 
-def visualize_grasps(
-    adaptive_goal_region_data,
-    grasping_poses=None,
-    plot_opencv_cam=False,
-):
+def visualize_grasps(adaptive_goal_region_data, grasping_poses=None, plot_opencv_cam=False):
     print("Visualizing process started. It takes time.")
-
+    full_pc, pc_colors = get_pc_data()
     fig = mlab.figure("Predicted Grasping Poses")
     mlab.view(azimuth=180, elevation=180, distance=0.2)
     gripper_openings_k = np.ones(1) * 0.08  # constant
-    # draw_pc_with_colors(full_pc, pc_colors)
+    if full_pc is not None:
+        draw_pc_with_colors(full_pc, pc_colors)
 
     if plot_opencv_cam:
         plot_coordinates(
@@ -117,9 +112,9 @@ def visualize_grasps(
 
         interpolated = generate_intermediate_poses(
             cluster[:3],
-            cluster[3:6],
-            cluster[6:9],
-            cluster[9:],
+            cluster[3:7],
+            cluster[7:10],
+            cluster[10:],
             50,
         )
         for interpolated_matrix in interpolated:
@@ -144,7 +139,7 @@ def visualize_grasps(
         #         gripper_openings=gripper_openings_k,
         #     )
 
-    save_agr_data_as_txt(adaptive_goal_region_data)
+    # save_agr_data_as_txt(adaptive_goal_region_data)
     mlab.show()
 
 
