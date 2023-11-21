@@ -116,6 +116,7 @@ def save_agr_data_as_txt(data: np.ndarray, path: Optional[str] = None, unique: O
                 text += "{:.5f} ".format(i)
             file.write(text + "\n")
 
+
 def save_agr_data_as_csv(adaptive_goal_region_data: np.ndarray) -> None:
     score = 0.0
     contact_point = np.zeros(3).flatten()

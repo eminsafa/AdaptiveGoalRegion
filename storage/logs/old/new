@@ -1,0 +1,11 @@
+RRT - with Multiple Target Poses
+ All Time Mean: 	  		26.42
+ Time Mean of Successful    25.13
+ Number Success 	  		46/49
+ Length Mean of Successful 	8.92
+
+RRT - Goal Region (Spline)
+ All Time Mean: 	  		5.70
+ Time Mean of Successful 	5.08
+ Number Success 			47/49
+ Length Mean of Successful 	8.93

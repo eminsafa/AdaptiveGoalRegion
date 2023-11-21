@@ -1,0 +1,54 @@
+MoveIt! version 65806
+Experiment Exp3
+Running on furkand
+Starting at 2023-Nov-21 12:47:01.161519
+<<<|
+|>>>
+0 is the random seed
+200 seconds per run
+-1 MB per run
+800.732 seconds spent to collect the data
+0 enum types
+1 planners
+RRT Test
+0 common properties
+17 properties for each run
+time REAL
+success BOOLEAN
+length REAL
+machine_hostname VARCHAR(128)
+machine_process_id BIGINT
+machine_thread_id BIGINT
+query_finish_time REAL
+query_index INT
+query_start_time REAL
+query_timeout_trial INT
+query_trial INT
+request_group_name VARCHAR(128)
+request_num_planning_attempts INT
+request_planner_id VARCHAR(128)
+request_planner_type VARCHAR(128)
+robowflex_planner_name VARCHAR(128)
+robowflex_robot_name VARCHAR(128)
+20 runs
+200.021; 0; 0; furkand; 77229; 139628774418176; 200.021163; 0; 0.000203; 0; 3; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.051; 0; 0; furkand; 77229; 139629128386304; 200.05143200000001; 0; 0.00015100000000000001; 0; 0; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.076; 0; 0; furkand; 77229; 139628640200448; 200.075839; 0; 0.00017899999999999999; 0; 2; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.086; 0; 0; furkand; 77229; 139628766025472; 200.086625; 0; 0.000223; 0; 4; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.127; 0; 0; furkand; 77229; 139628782810880; 200.127261; 0; 0.000135; 0; 1; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.124; 0; 0; furkand; 77229; 139629128386304; 400.17517800000002; 0; 200.05157500000001; 0; 6; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.241; 0; 0; furkand; 77229; 139628774418176; 400.26917300000002; 0; 200.027916; 0; 5; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.161; 0; 0; furkand; 77229; 139628782810880; 400.288184; 0; 200.127443; 0; 9; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.259; 0; 0; furkand; 77229; 139628766025472; 400.34607999999997; 0; 200.086815; 0; 8; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.293; 0; 0; furkand; 77229; 139628640200448; 400.369304; 0; 200.07598100000001; 0; 7; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.102; 0; 0; furkand; 77229; 139628774418176; 600.37151100000005; 0; 400.26933000000002; 0; 11; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.132; 0; 0; furkand; 77229; 139628782810880; 600.41994699999998; 0; 400.288297; 0; 12; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.261; 0; 0; furkand; 77229; 139629128386304; 600.43617300000005; 0; 400.17533700000001; 0; 10; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.107; 0; 0; furkand; 77229; 139628640200448; 600.47684800000002; 0; 400.36949399999997; 0; 14; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.138; 0; 0; furkand; 77229; 139628766025472; 600.48407099999997; 0; 400.346249; 0; 13; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.263; 0; 0; furkand; 77229; 139628774418176; 800.634728; 0; 600.37169300000005; 0; 15; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.217; 0; 0; furkand; 77229; 139628782810880; 800.63672199999996; 0; 600.42010000000005; 0; 16; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.239; 0; 0; furkand; 77229; 139629128386304; 800.67585999999994; 0; 600.43636700000002; 0; 17; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.214; 0; 0; furkand; 77229; 139628640200448; 800.69052399999998; 0; 600.47697300000004; 0; 18; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+200.248; 0; 0; furkand; 77229; 139628766025472; 800.73200199999997; 0; 600.48425799999995; 0; 19; panda_arm; 1; RRTkConfigDefault; robowflex::OMPL::FrankaOMPLPipelinePlanner; ; panda; 
+.

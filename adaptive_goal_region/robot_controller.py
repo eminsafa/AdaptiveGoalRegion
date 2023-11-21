@@ -42,7 +42,7 @@ import cv2
 
 class RobotController:
 
-    def __init__(self, real_robot: bool = False, group_id: str = "arm"):
+    def __init__(self, real_robot: bool = False, group_id: str = "manipulator"):
         self.real_robot = real_robot
         self.robot_name = "fr3" if real_robot else "panda"
         rospy.init_node("panda_controller", anonymous=True)
