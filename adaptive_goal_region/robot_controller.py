@@ -40,6 +40,10 @@ from adaptive_goal_region.object_helper import delete_model_from_gazebo, spawn_l
 import cv2
 
 
+def shutdown_handler():
+    print("Shutting down ROS node...")
+
+
 class RobotController:
 
     def __init__(self, real_robot: bool = False, group_id: str = "manipulator"):
@@ -75,6 +79,7 @@ class RobotController:
         self.set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
         self.move_group.set_planning_time(1.9)
         time.sleep(1)  # wait to fill buffer
+        rospy.on_shutdown(shutdown_handler)
 
     # GRIPPER OPERATIONS
 
@@ -237,26 +242,32 @@ class RobotController:
         filtered_depth_data = cv2.bitwise_and(depth_data, depth_data, mask=mask_non_red_brown)
         return filtered_depth_data
 
-    def capture_image_and_save_info(self) -> str:
+    def capture_image_and_save_info(self, dir_name: Optional[str] = None) -> str:
         rospy.Subscriber("/camera/color/image_raw", Image, self.rgb_callback)
         rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image, self.depth_callback)
         rospy.Subscriber("/camera/aligned_depth_to_color/camera_info", CameraInfo, self.camera_info_callback)
         rospy.sleep(5)
-        depth_array = self.filter_color(np.array(self.rgb_array), np.array(self.depth_array))
+        filtered_depth_array = self.filter_color(np.array(self.rgb_array), np.array(self.depth_array))
         data_dict = {
             "rgb": np.array(self.rgb_array),
-            "depth": depth_array / 1000.0,
+            "depth_raw": self.depth_array / 1000.0,
+            "depth": filtered_depth_array / 1000.0,
             "label": np.zeros((720, 1280), dtype=np.uint8),
             "K": self.camera_info,
         }
-        unique_save_dir = create_new_directory(self.save_dir)
-        np.save(unique_save_dir + '/data.npy', data_dict)
-        np.save(unique_save_dir + "/rgb.npy", np.array(self.rgb_array))
-        np.save(unique_save_dir + "/depth.npy", np.array(self.depth_array) / 1000.0)
-        self.latest_capture_path = unique_save_dir + '/data.npy'
-        self.latest_capture_dir = unique_save_dir
-        print("Data saved on", self.latest_capture_path)
-        return self.latest_capture_path
+        if dir_name is not None:
+            save_dir = self.save_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'storage', dir_name, 'temp'))
+            print(save_dir)
+            np.save(save_dir + '/raw_capture.npy', data_dict)
+            return save_dir
+        else:
+            unique_save_dir = create_new_directory(self.save_dir)
+            np.save(unique_save_dir + "/rgb.npy", np.array(self.rgb_array))
+            np.save(unique_save_dir + "/depth.npy", np.array(self.depth_array) / 1000.0)
+            self.latest_capture_path = unique_save_dir + '/data.npy'
+            self.latest_capture_dir = unique_save_dir
+            print("Data saved on", self.latest_capture_path)
+            return self.latest_capture_path
 
     def view_image(self, file_path: Optional[str] = None) -> None:
         if file_path is None:
@@ -372,6 +383,22 @@ class RobotController:
             ]
         )
 
+    def convert_matrices_to_array_new(self, data: Dict) -> Tuple[np.ndarray, np.ndarray]:
+        score_matrix_segment_pairs = []
+        for segment_id in data['pred_grasps_cam'].item():
+            pairs = zip(
+                data['scores'].item()[segment_id],
+                data['pred_grasps_cam'].item()[segment_id],
+                [segment_id] * len(data['pred_grasps_cam'].item()[segment_id])
+            )
+            score_matrix_segment_pairs.extend(pairs)
+        score_matrix_segment_pairs.sort(key=lambda x: x[0], reverse=True)
+        return (
+            np.array([self.matrix_to_pose_quaternion(matrix) for _, matrix, _ in score_matrix_segment_pairs]),
+            np.array([segment_id for _, _, segment_id in score_matrix_segment_pairs])
+        )
+    
+
     def array_frame_transformation(self, poses: np.ndarray) -> np.ndarray:
         result = []
         for pose in poses:
@@ -447,9 +474,13 @@ class RobotController:
 
     # HELPERS
 
-    def read_grasping_poses_file(self) -> Dict:
-        with np.load("storage/grasping_poses/data.npz", allow_pickle=True) as data:
+    def read_grasping_poses_file(self, path: Optional[str] = None) -> Dict:
+        with np.load(path or "storage/grasping_poses/data.npz", allow_pickle=True) as data:
             return dict(data)
 
     def test(self):
         pass
+
+    def kill(self):
+        rospy.on_shutdown()
+        return None

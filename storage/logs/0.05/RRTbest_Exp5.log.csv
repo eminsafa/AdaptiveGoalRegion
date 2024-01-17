@@ -1,0 +1,20 @@
+Time,Success,Length,Machine Hostname,Machine Process Id,Machine Thread Id,Query Finish Time,Query Index,Query Start Time,Query Timeout Trial,Query Trial,Request Group Name,Request Num Planning Attempts,Request Planner Id,Request Planner Type,Robowflex Planner Name,Robowflex Robot Name
+200.101,0.0,0.0,furkand,434813.0,140163205027584.0,200.101691,0.0,0.000198,0.0,2.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.155,0.0,0.0,furkand,434813.0,140163188242176.0,200.155043,0.0,0.000247,0.0,4.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.165,0.0,0.0,furkand,434813.0,140163213420288.0,200.165551,0.0,0.000171,0.0,1.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.204,0.0,0.0,furkand,434813.0,140163196634880.0,200.204594,0.0,0.000228,0.0,3.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.259,0.0,0.0,furkand,434813.0,140163205027584.0,400.36105,0.0,200.101833,0.0,6.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.293,0.0,0.0,furkand,434813.0,140163221812992.0,400.376799,0.0,200.083871,0.0,5.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.244,0.0,0.0,furkand,434813.0,140163188242176.0,400.399345,0.0,200.155224,0.0,7.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.198,0.0,0.0,furkand,434813.0,140163196634880.0,400.403048,0.0,200.204781,0.0,9.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.25,0.0,0.0,furkand,434813.0,140163213420288.0,400.416157,0.0,200.165758,0.0,8.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.138,0.0,0.0,furkand,434813.0,140163196634880.0,600.540978,0.0,400.403249,0.0,13.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.164,0.0,0.0,furkand,434813.0,140163221812992.0,600.541163,0.0,400.376926,0.0,11.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.198,0.0,0.0,furkand,434813.0,140163205027584.0,600.559523,0.0,400.361223,0.0,10.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.219,0.0,0.0,furkand,434813.0,140163213420288.0,600.635741,0.0,400.416315,0.0,14.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.307,0.0,0.0,furkand,434813.0,140163188242176.0,600.706418,0.0,400.399524,0.0,12.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.203,0.0,0.0,furkand,434813.0,140163221812992.0,800.744576,0.0,600.541321,0.0,16.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.246,0.0,0.0,furkand,434813.0,140163196634880.0,800.78731,0.0,600.541123,0.0,15.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.287,0.0,0.0,furkand,434813.0,140163205027584.0,800.846724,0.0,600.559692,0.0,17.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.232,0.0,0.0,furkand,434813.0,140163213420288.0,800.86788,0.0,600.635884,0.0,18.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda
+200.252,0.0,0.0,furkand,434813.0,140163188242176.0,800.958631,0.0,600.706598,0.0,19.0,panda_arm,1.0,RRTkConfigDefault,robowflex::OMPL::FrankaOMPLPipelinePlanner,,panda

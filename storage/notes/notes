@@ -1,0 +1,73 @@
+IEEE Automation sc'ence and eng'neer'ng
+IEEE Robotics and Automation Letters
+Robotics and Autonomous Systems ağaçlı logosu olan site elsevier?, science direct
+    12-14 page for journals
+
+easier IEEE conference CASE: deadline 1st of March
+    then we can publish a journal but needs contribution
+    6 page
+
+
+early or mid january
+
+
+1. Literature Review -> Furkan check ICRA19 paper for this
+    Manipulation Planning with Workspace Goal Regions, Dimitry -> Check this
+
+2. Overleaf
+    Start thinking about structure
+    Check dimitry paper
+
+Introducing to goal regions?
+Definition
+Methods, algorithm
+
+we can replicate structure of icra paper
+    goal regions, man. planning, grasping planning. between 19-24
+    clustiring?
+    Clustering + Goal Region Planning
+    select relevant papers
+
+
+more test scenarios
+    single objects?
+    more objects, 10 objects?
+    more real like objects
+    coke can, water bottles
+    clean the code
+    they may ask to open the code
+
+safa:
+    clean code
+    compare code: old version of vega then test. it will be worse however it will be realistic
+    goal region <-> spline branch
+    Real World Experiment
+        with shelf
+
+steven ask for link of cylinder or we can have can.
+
+11 december: Furkan's report
+
+mid-january: planned deadline
+
+
+problem: making assumptions.
+    those people doesnt consider where do those poses come from.
+    it is very big assumptions
+    not many paper doing this integration
+    they dont care about feasibility
+
+    LIMITATION: HOW TO CREATE REGION
+    Not too many paper,
+
+
+We need to mention how we use it.
+Pretty much all of them same
+It works better, it wont be a constrains.
+
+Diagram: shows camera etc. Ranked
+
+
+
+
+

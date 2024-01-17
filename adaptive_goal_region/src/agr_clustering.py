@@ -12,7 +12,7 @@ def cluster_by_position(positions: np.ndarray) -> np.ndarray:
     return np.array(labels)
 
 
-def cluster_by_orientation(orientations: np.ndarray, global_indices: np.ndarray, eps_degrees: int = 40, min_samples: int = 5):
+def cluster_by_orientation(orientations: np.ndarray, global_indices: np.ndarray, eps_degrees: int = 30, min_samples: int = 3):
     distance_matrix = squareform(pdist(orientations, metric=quaternion_angular_distance))
     db = DBSCAN(
         eps=np.radians(eps_degrees), min_samples=min_samples, metric="precomputed"
@@ -47,6 +47,44 @@ def generate_indices_array(labels: np.ndarray, n_clusters: int, positions: np.nd
     indices = []
     last_index = 0
     for parent_cluster in range(n_clusters):
+        cluster_orientations_indices = []
+        cluster_positions = []
+        cluster_orientations = []
+        for index, l in enumerate(labels):
+            if l == parent_cluster:
+                cluster_orientations.append(orientations[index])
+                cluster_orientations_indices.append(index)
+                cluster_positions.append(positions[index])
+
+        if not np.any(cluster_orientations):
+            continue
+
+        sub_cluster_indices = cluster_by_orientation(
+            np.array(cluster_orientations),
+            np.array(cluster_orientations_indices),
+        )
+
+        for j, (matrices_index, sub_cluster) in enumerate(sub_cluster_indices):
+            if sub_cluster is None:
+                global_label = None
+            else:
+                global_label = global_labels.get(parent_cluster, {}).get(sub_cluster, None)
+                if global_label is None:
+                    global_label = last_index
+                    if parent_cluster not in global_labels:
+                        global_labels[parent_cluster] = {}
+                    global_labels[parent_cluster][sub_cluster] = global_label
+                    last_index += 1
+            indices.append((matrices_index, global_label))
+
+    return indices, global_labels
+
+
+def generate_indices_array_new(labels: np.ndarray, positions: np.ndarray, orientations: np.ndarray) -> Tuple[np.ndarray, Dict]:
+    global_labels = {}
+    indices = []
+    last_index = 0
+    for parent_cluster in np.unique(labels):
         cluster_orientations_indices = []
         cluster_positions = []
         cluster_orientations = []

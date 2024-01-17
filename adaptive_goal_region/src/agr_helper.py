@@ -103,7 +103,7 @@ def n_closest_points_indices(points, target_point, n=3):
 
 
 def save_agr_data_as_txt(data: np.ndarray, path: Optional[str] = None, unique: Optional[bool] = False) -> None:
-    path = path if path is not None else "storage/spline_finals/agr_output.txt"
+    path = path or "storage/spline_finals/agr_output.txt"
     temp = set()
     with open(path, "w") as file:
         for pose in data:

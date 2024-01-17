@@ -8,6 +8,8 @@ from adaptive_goal_region.src.agr_helper import (
     quaternion_angular_distance, euler_to_quaternion
 )
 
+from scipy.spatial.transform import Rotation as R
+
 
 def find_most_different_orientation_couples(oris1: np.ndarray, oris1_idx: np.ndarray, oris2: np.ndarray, oris2_idx: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     max_difference = 0
@@ -76,7 +78,7 @@ def generate_intermediate_poses(positions1: np.ndarray, q1: np.ndarray, position
     return np.array(new_poses)
 
 
-def generate_matrix(pos: np.ndarray, ori: np.ndarray) -> np.ndarray:
+def generate_matrix_old(pos: np.ndarray, ori: np.ndarray) -> np.ndarray:
     w, x, y, z = ori
     xx, yy, zz = x * x, y * y, z * z
     xy, xz, yz = x * y, x * z, y * z
@@ -88,3 +90,16 @@ def generate_matrix(pos: np.ndarray, ori: np.ndarray) -> np.ndarray:
         [0, 0, 0, 1]
     ])
     return rotation_matrix
+
+
+def generate_matrix(pos: np.ndarray, ori: np.ndarray) -> np.ndarray:
+    x, y, z = pos
+    qx, qy, qz, qw = ori
+
+    rotation_matrix = R.from_quat([qx, qy, qz, qw]).as_matrix()
+
+    transformation_matrix = np.eye(4)  # Start with an identity matrix
+    transformation_matrix[:3, :3] = rotation_matrix
+    transformation_matrix[:3, 3] = [x, y, z]
+
+    return np.array(transformation_matrix)
